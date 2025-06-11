@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import time
 import winsound
+from playsound import playsound
 
 # Function to update the clock labels
 def update_clock():
@@ -26,6 +27,14 @@ def update_clock():
     # Schedule the update_clock function to be called after 1000ms 
     root.after(1000, update_clock)
 
+#helper function for custom timer sound
+def play_notification_sound():
+    try:
+        playsound('ghost-moan.wav') 
+    except Exception as e:
+        print(f"Error playing sound file: {e}")
+        print("Playing default system sound instead.")
+        winsound.MessageBeep() # Play a fallback sound
 # Countdown function
 def start_countdown(total_seconds):
     def countdown(seconds):
@@ -34,8 +43,9 @@ def start_countdown(total_seconds):
         if seconds > 0:
             root.after(1000, countdown, seconds - 1)
         else:
-            countdown_label.config(text="Time's up!")
-            winsound.MessageBeep()
+            countdown_label.config(text="Time's up!",
+                                   font = 20)
+            play_notification_sound()
     countdown(total_seconds)
 
 # Function to show prompt and start timer
