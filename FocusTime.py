@@ -1,8 +1,11 @@
+import sys
+import os
 import tkinter as tk
 from tkinter import ttk
 import time
 import winsound
 from playsound import playsound
+import threading
 
 # Function to update the clock labels
 def update_clock():
@@ -30,11 +33,28 @@ def update_clock():
 #helper function for custom timer sound
 def play_notification_sound():
     try:
-        playsound('ghost-moan.wav') 
+        # ----> CHANGE THIS to your actual sound file name <----
+        sound_file_name = 'ghost-moan.wav' 
+        
+        # Use the helper function to create the correct path
+        sound_file_path = resource_path(sound_file_name)
+        
+        playsound(sound_file_path)
     except Exception as e:
         print(f"Error playing sound file: {e}")
-        print("Playing default system sound instead.")
-        winsound.MessageBeep() # Play a fallback sound
+        winsound.MessageBeep() # Fallback sound
+
+#function that allows .exe to use custom sound file
+def resource_path(relative_path):
+    """ Get absolute path to resource"""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)       
+
 # Countdown function
 def start_countdown(total_seconds):
     def countdown(seconds):
@@ -45,7 +65,9 @@ def start_countdown(total_seconds):
         else:
             countdown_label.config(text="Time's up!",
                                    font = 20)
-            play_notification_sound()
+            sound_thread = threading.Thread(target=play_notification_sound, daemon=True)
+            sound_thread.start()
+
     countdown(total_seconds)
 
 # Function to show prompt and start timer
